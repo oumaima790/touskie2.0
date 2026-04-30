@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "frontend": "vite --host 0.0.0.0 --port 5173",
+    "backend": "cd backend && npm run dev",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+  },
+  "dependencies": {
+    "@mdi/font": "latest",
+    "@vitejs/plugin-vue": "latest",
+    "axios": "latest",
+    "concurrently": "latest",
+    "vite": "latest",
+    "vue": "latest",
+    "vue-router": "latest",
+    "vuetify": "latest"
+  },
+  "devDependencies": {}
+}

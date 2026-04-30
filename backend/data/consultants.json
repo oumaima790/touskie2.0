@@ -1,0 +1,30 @@
+[
+  {
+    "id": "1",
+    "name": "Dr. Sarah Johnson",
+    "specialty": "Business Strategy",
+    "experience": "10+ years",
+    "createdAt": "2026-03-31T16:15:38.683Z"
+  },
+  {
+    "id": "2",
+    "name": "Mike Chen",
+    "specialty": "Financial Advisory",
+    "experience": "8+ years",
+    "createdAt": "2026-03-31T16:15:38.684Z"
+  },
+  {
+    "id": "3",
+    "name": "Emma Rodriguez",
+    "specialty": "Digital Transformation",
+    "experience": "12+ years",
+    "createdAt": "2026-03-31T16:15:38.684Z"
+  },
+  {
+    "id": "4",
+    "name": "David Kim",
+    "specialty": "Operations",
+    "experience": "15+ years",
+    "createdAt": "2026-03-31T16:15:38.684Z"
+  }
+]

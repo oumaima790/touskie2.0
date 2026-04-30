@@ -1,0 +1,29 @@
+[
+  {
+    "id": "1774911391946",
+    "firstName": "oumaima",
+    "lastName": "bouassida",
+    "email": "bouassidaoumaima@gmail.com",
+    "password": "zfezefze",
+    "role": "user",
+    "createdAt": "2026-03-30T22:56:31.946Z"
+  },
+  {
+    "id": "1774911975042",
+    "firstName": "oumaima",
+    "lastName": "bouassida",
+    "email": "bouassidaoumaimaqscqsc2@gmail.com",
+    "password": "cdsvsdcqscq",
+    "role": "user",
+    "createdAt": "2026-03-30T23:06:15.042Z"
+  },
+  {
+    "id": "1777125752564",
+    "firstName": "Yassine",
+    "lastName": "FRIAA",
+    "email": "friaayassine25@gmail.com",
+    "password": "ZZAAQQ105",
+    "role": "user",
+    "createdAt": "2026-04-25T14:02:32.564Z"
+  }
+]

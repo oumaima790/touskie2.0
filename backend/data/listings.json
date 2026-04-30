@@ -1,0 +1,139 @@
+[
+  {
+    "id": 1,
+    "title": "Web Development Project",
+    "description": "Build a modern web application using Vue.js and Node.js",
+    "category": "Development",
+    "price": 1500,
+    "dateAdded": "2024-01-15",
+    "publisherId": "1774911391946"
+  },
+  {
+    "id": 2,
+    "title": "Mobile App Design",
+    "description": "Design UI/UX for a mobile application",
+    "category": "Design",
+    "price": 800,
+    "dateAdded": "2024-01-20",
+    "publisherId": "1774911975042"
+  },
+  {
+    "id": 3,
+    "title": "Data Analysis Service",
+    "description": "Analyze business data and provide insights",
+    "category": "Analytics",
+    "price": 1200,
+    "dateAdded": "2024-01-25",
+    "publisherId": "1774911391946"
+  },
+  {
+    "id": "1774976462246",
+    "title": "MacBook Pro 2021",
+    "description": "A powerful laptop in excellent condition, 16GB RAM, 512GB SSD.",
+    "category": "Electronics",
+    "price": 4500,
+    "publisherId": "user-123",
+    "dateAdded": "31/03/2026",
+    "createdAt": "2026-03-31T17:01:02.260Z"
+  },
+  {
+    "id": "1774976554301",
+    "title": "MacBook Pro 2021",
+    "description": "A powerful laptop in excellent condition, 16GB RAM, 512GB SSD.",
+    "category": "Electronics",
+    "price": 4500,
+    "publisherId": "user-123",
+    "dateAdded": "31/03/2026",
+    "createdAt": "2026-03-31T17:02:34.314Z"
+  },
+  {
+    "id": "1774976555198",
+    "title": "MacBook Pro 2021",
+    "description": "A powerful laptop in excellent condition, 16GB RAM, 512GB SSD.",
+    "category": "Electronics",
+    "price": 4500,
+    "publisherId": "user-123",
+    "dateAdded": "31/03/2026",
+    "createdAt": "2026-03-31T17:02:35.211Z"
+  },
+  {
+    "id": "1774976555477",
+    "title": "MacBook Pro 2021",
+    "description": "A powerful laptop in excellent condition, 16GB RAM, 512GB SSD.",
+    "category": "Electronics",
+    "price": 4500,
+    "publisherId": "user-123",
+    "dateAdded": "31/03/2026",
+    "createdAt": "2026-03-31T17:02:35.477Z"
+  },
+  {
+    "id": "1774976555674",
+    "title": "MacBook Pro 2021",
+    "description": "A powerful laptop in excellent condition, 16GB RAM, 512GB SSD.",
+    "category": "Electronics",
+    "price": 4500,
+    "publisherId": "user-123",
+    "dateAdded": "31/03/2026",
+    "createdAt": "2026-03-31T17:02:35.690Z"
+  },
+  {
+    "id": "1774976555844",
+    "title": "MacBook Pro 2021",
+    "description": "A powerful laptop in excellent condition, 16GB RAM, 512GB SSD.",
+    "category": "Electronics",
+    "price": 4500,
+    "publisherId": "user-123",
+    "dateAdded": "31/03/2026",
+    "createdAt": "2026-03-31T17:02:35.844Z"
+  },
+  {
+    "id": "1774976556144",
+    "title": "MacBook Pro 2021",
+    "description": "A powerful laptop in excellent condition, 16GB RAM, 512GB SSD.",
+    "category": "Electronics",
+    "price": 4500,
+    "publisherId": "user-123",
+    "dateAdded": "31/03/2026",
+    "createdAt": "2026-03-31T17:02:36.162Z"
+  },
+  {
+    "id": "1774976556455",
+    "title": "MacBook Pro 2021",
+    "description": "A powerful laptop in excellent condition, 16GB RAM, 512GB SSD.",
+    "category": "Electronics",
+    "price": 4500,
+    "publisherId": "user-123",
+    "dateAdded": "31/03/2026",
+    "createdAt": "2026-03-31T17:02:36.455Z"
+  },
+  {
+    "id": "1774976556710",
+    "title": "MacBook Pro 2021",
+    "description": "A powerful laptop in excellent condition, 16GB RAM, 512GB SSD.",
+    "category": "Electronics",
+    "price": 4500,
+    "publisherId": "user-123",
+    "dateAdded": "31/03/2026",
+    "createdAt": "2026-03-31T17:02:36.723Z"
+  },
+  {
+    "id": "1774976594743",
+    "title": "MacBook Pro 2021",
+    "description": "A powerful laptop in excellent condition, 16GB RAM, 512GB SSD.",
+    "category": "Electronics",
+    "price": 4500,
+    "publisherId": "user-123",
+    "dateAdded": "31/03/2026",
+    "createdAt": "2026-03-31T17:03:14.755Z"
+  },
+  {
+    "id": "1774976617130",
+    "title": "MacBook Pro 2021",
+    "description": "A powerful laptop in excellent condition, 16GB RAM, 512GB SSD.",
+    "category": "Electronics",
+    "price": 4500,
+    "publisherId": "user-123",
+    "dateAdded": "31/03/2026",
+    "createdAt": "2026-03-31T17:03:37.150Z"
+  }
+]

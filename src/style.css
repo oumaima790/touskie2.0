@@ -1,0 +1,76 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: rgba(255, 255, 255, 0.87);
+  background: #0e203a;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#app,
+.v-application,
+.v-application__wrap,
+.v-main,
+.v-main__wrap {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  width: 100%;
+  background: #0e203a !important;
+  color: white;
+}
+
+body {
+  display: block;
+}
+
+#app {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  margin: 0;
+  text-align: initial;
+}
+
+a {
+  font-weight: 500;
+  color: #ff6b13;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #ff8a3d;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #071426;
+  color: white;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+button:hover {
+  border-color: #ff6b13;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto #ff6b13;
+}
+
+.card {
+  padding: 2em;
+}

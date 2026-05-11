@@ -51,7 +51,12 @@
 <script setup>
 import { useTouskieConsultantUI } from "../store/useTouskieConsultantUI";
 
-const { state, navigate, openConfirmDeliveryDialog } = useTouskieConsultantUI();
+const {
+  state,
+  navigate,
+  openConfirmDeliveryDialog,
+} = useTouskieConsultantUI();
+
 </script>
 
 <style scoped>
@@ -158,7 +163,8 @@ button {
 }
 
 .text-btn,
-.primary-btn {
+.primary-btn,
+.outline-btn {
   border: none;
   border-radius: 10px;
   font-weight: 800;
@@ -175,6 +181,14 @@ button {
   padding: 14px 22px;
   background: #ff6b13;
   color: white;
+}
+
+.outline-btn {
+  padding: 12px 18px;
+  background: transparent;
+  color: #ffb27c;
+  border: 1px solid rgba(255, 107, 19, 0.55);
+  white-space: nowrap;
 }
 
 @media (max-width: 900px) {

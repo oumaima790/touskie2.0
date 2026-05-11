@@ -58,6 +58,8 @@ const state = reactive({
       risk: "Medium",
       notes: "",
       status: "Validation",
+      verificationCode: "",
+      verified: false,
     },
   },
 
@@ -106,6 +108,67 @@ const riskAlertType = computed(() => {
   if (r === "Medium") return "warning";
   return "success";
 });
+
+// ---- demo verification code helpers ----
+function createVerificationCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function getVerificationStorageKey() {
+  return `touskie_verification_code_${state.consultant.currentCase.caseId}`;
+}
+
+function getVerifiedStorageKey() {
+  return `touskie_verified_${state.consultant.currentCase.caseId}`;
+}
+
+function ensureVerificationCode() {
+  if (typeof window === "undefined") return "";
+
+  const key = getVerificationStorageKey();
+  let code = window.localStorage.getItem(key);
+
+  if (!code) {
+    code = createVerificationCode();
+    window.localStorage.setItem(key, code);
+  }
+
+  state.consultant.currentCase.verificationCode = code;
+  state.consultant.currentCase.verified = window.localStorage.getItem(getVerifiedStorageKey()) === "true";
+
+  return code;
+}
+
+function regenerateVerificationCode() {
+  if (typeof window === "undefined") return;
+
+  const code = createVerificationCode();
+  window.localStorage.setItem(getVerificationStorageKey(), code);
+  window.localStorage.removeItem(getVerifiedStorageKey());
+
+  state.consultant.currentCase.verificationCode = code;
+  state.consultant.currentCase.verified = false;
+}
+
+function normalizeVerificationInput(value) {
+  const text = String(value || "").trim();
+  const exactCode = text.match(/^\d{6}$/);
+  if (exactCode) return exactCode[0];
+
+  const embeddedCode = text.match(/(\d{6})/);
+  return embeddedCode ? embeddedCode[1] : text;
+}
+
+function completeCurrentCaseAfterVerification() {
+  state.consultant.currentCase.status = "Completed";
+  state.consultant.currentCase.verified = true;
+  state.consultant.kpis.active = Math.max(0, state.consultant.kpis.active - 1);
+  state.consultant.kpis.completed += 1;
+
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(getVerifiedStorageKey(), "true");
+  }
+}
 
 // ---- routing helpers (keeps your hash style) ----
 function route() {
@@ -187,26 +250,65 @@ function onCvPicked(files) {
 function openAddCertificationDialog() {
   dialog.open = true;
   dialog.kind = "addCert";
-  dialog.title = "P37 — Add Certification";
+  dialog.title = "Add Certification";
   dialog.message = "";
   dialog.request = null;
-  dialog.form = { certName: "", certProof: "" };
+  dialog.form = {
+    certName: "",
+    certProofFile: null
+  };
+
   dialog.actions = [
-    { label: "Cancel", color: undefined, variant: "text", onClick: closeDialog },
+    {
+      label: "Cancel",
+      color: undefined,
+      variant: "text",
+      onClick: closeDialog
+    },
     {
       label: "Add",
       color: "primary",
       variant: "tonal",
       onClick: () => {
-        const name = (dialog.form.certName || "").trim();
+        const name = String(dialog.form.certName || "").trim();
+
         if (!name) {
           openSimpleDialog("Missing name", "Please enter a certification name.");
           return;
         }
-        state.onboarding.profile.certifications.push(name);
+
+        const pickedFile = Array.isArray(dialog.form.certProofFile)
+          ? dialog.form.certProofFile[0]
+          : dialog.form.certProofFile;
+
+        if (pickedFile) {
+          const fileName = String(pickedFile.name || "");
+          const lowerName = fileName.toLowerCase();
+
+          const isValidFile =
+            lowerName.endsWith(".pdf") ||
+            lowerName.endsWith(".png") ||
+            lowerName.endsWith(".jpg") ||
+            lowerName.endsWith(".jpeg") ||
+            lowerName.endsWith(".doc") ||
+            lowerName.endsWith(".docx");
+
+          if (!isValidFile) {
+            openSimpleDialog(
+              "Invalid file",
+              "Please upload a PDF, image, DOC, or DOCX file."
+            );
+            return;
+          }
+
+          state.onboarding.profile.certifications.push(`${name} — ${fileName}`);
+        } else {
+          state.onboarding.profile.certifications.push(name);
+        }
+
         closeDialog();
-      },
-    },
+      }
+    }
   ];
 }
 
@@ -267,8 +369,8 @@ function submitApplication() {
 
   dialog.open = true;
   dialog.kind = "message";
-  dialog.title = "P41 — Submission Confirmation";
-  dialog.message = "Application submitted successfully. You can start using the consultant dashboard (mock).";
+  dialog.title = "Submission Confirmation";
+  dialog.message = "Application submitted successfully. You can start using the consultant dashboard ";
   dialog.request = null;
   dialog.form = {};
   dialog.actions = [
@@ -402,12 +504,18 @@ function approveCase() {
 }
 
 function openConfirmDeliveryDialog() {
+  ensureVerificationCode();
+
   dialog.open = true;
   dialog.kind = "confirmDelivery";
   dialog.title = "P49 — Confirm Delivery";
   dialog.message = "";
   dialog.request = null;
-  dialog.form = { delNote: "" };
+  dialog.form = {
+    delNote: "",
+    deliveryCode: "",
+    deliveryError: "",
+  };
   dialog.actions = [
     { label: "Cancel", color: undefined, variant: "text", onClick: closeDialog },
     {
@@ -415,11 +523,22 @@ function openConfirmDeliveryDialog() {
       color: "primary",
       variant: "tonal",
       onClick: () => {
-        state.consultant.currentCase.status = "Completed";
-        state.consultant.kpis.active = Math.max(0, state.consultant.kpis.active - 1);
-        state.consultant.kpis.completed += 1;
+        const enteredCode = normalizeVerificationInput(dialog.form.deliveryCode);
+        const expectedCode = ensureVerificationCode();
+
+        if (!enteredCode) {
+          dialog.form.deliveryError = "Enter the client verification code first.";
+          return;
+        }
+
+        if (enteredCode !== expectedCode) {
+          dialog.form.deliveryError = "Invalid code. Ask the client to show the QR code or give the 6-digit code.";
+          return;
+        }
+
+        completeCurrentCaseAfterVerification();
         closeDialog();
-        openSimpleDialog("Done", "Delivery confirmed. Case marked completed (mock).");
+        openSimpleDialog("Done", "Code verified. Case marked completed (mock).");
         navigate("p42");
       },
     },
@@ -528,6 +647,8 @@ export function useTouskieConsultantUI() {
     openRequestChangesDialog,
     approveCase,
 
+    ensureVerificationCode,
+    regenerateVerificationCode,
     openConfirmDeliveryDialog,
 
     markDirty,

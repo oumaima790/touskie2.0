@@ -5,7 +5,7 @@
         <h1>Review & Submit</h1>
         <p>Review your info then submit your application.</p>
       </div>
-      <span class="chip">Review</span>
+      
     </div>
 
     <div class="dark-card">

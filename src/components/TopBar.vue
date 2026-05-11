@@ -6,20 +6,25 @@
   >
     <!-- LEFT -->
     <div class="d-flex align-center pl-4">
-      <div class="brand">Touskié</div>
-      <div class="mode">Consultant mode</div>
+      <div class="brand" @click="goHome">Touskié</div>
+      <div class="mode">{{ modeBadgeText }}</div>
     </div>
 
     <v-spacer />
 
     <!-- RIGHT -->
     <div class="d-flex align-center pr-4 ga-2">
-      <v-btn icon>
+      <v-btn icon @click="openNotifications">
         <v-icon>mdi-bell-outline</v-icon>
       </v-btn>
 
-      <v-btn class="top-btn">Search</v-btn>
-      <v-btn class="top-btn">Inbox</v-btn>
+      <v-btn class="top-btn" @click="openSearch">
+        Search
+      </v-btn>
+
+      <v-btn class="top-btn" @click="openInbox">
+        Inbox
+      </v-btn>
 
       <v-menu>
         <template #activator="{ props }">
@@ -29,15 +34,63 @@
           </v-btn>
         </template>
 
-        <v-list>
-          <v-list-item title="My profile" />
-          <v-list-item title="Settings" />
-          <v-list-item title="Logout" />
+        <v-list class="profile-menu">
+          <v-list-item
+            title="My profile"
+            prepend-icon="mdi-account-outline"
+            @click="goToProfile"
+          />
+
+          <v-list-item
+            title="Settings"
+            prepend-icon="mdi-cog-outline"
+            @click="goToSettings"
+          />
+
+          <v-list-item
+            title="Logout"
+            prepend-icon="mdi-logout"
+            @click="logout"
+          />
         </v-list>
       </v-menu>
     </div>
   </v-app-bar>
 </template>
+
+<script setup>
+import { useTouskieConsultantUI } from '../store/useTouskieConsultantUI'
+
+const {
+  navigate,
+  modeBadgeText,
+  openNotifications,
+  openSearch,
+  openInbox,
+} = useTouskieConsultantUI()
+
+function goHome() {
+  navigate('p33')
+}
+
+function goToProfile() {
+  navigate('p42')
+}
+
+function goToSettings() {
+  navigate('p50')
+}
+
+function logout() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  localStorage.removeItem('consultantMode')
+  localStorage.removeItem('touskie_user')
+  localStorage.removeItem('touskie_token')
+
+  window.location.href = '/login'
+}
+</script>
 
 <style scoped>
 .brand {
@@ -45,6 +98,7 @@
   font-weight: 800;
   font-size: 1.25rem;
   margin-right: 12px;
+  cursor: pointer;
 }
 
 .mode {
@@ -57,5 +111,14 @@
   color: white;
   text-transform: none;
   font-weight: 600;
+}
+
+.profile-menu {
+  background: #1f1f1f;
+  color: white;
+}
+
+.profile-menu :deep(.v-list-item) {
+  cursor: pointer;
 }
 </style>

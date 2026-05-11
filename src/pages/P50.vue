@@ -16,7 +16,7 @@
           v-model="state.settings.profileVisible"
           color="primary"
           label="Public profile visibility"
-          hint="If off, you won't appear in search (mock)."
+          hint="If off, you won't appear in search."
           persistent-hint
           @update:modelValue="markDirty"
         />

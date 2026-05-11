@@ -62,10 +62,10 @@ db.exec(`
 const count = db.prepare('SELECT COUNT(*) as count FROM consultants').get()
 if (count.count === 0) {
   const insert = db.prepare('INSERT INTO consultants (id, name, specialty, experience) VALUES (?, ?, ?, ?)')
-  insert.run('1', 'Dr. Sarah Johnson', 'Business Strategy', '10+ years')
-  insert.run('2', 'Mike Chen', 'Financial Advisory', '8+ years')
-  insert.run('3', 'Emma Rodriguez', 'Digital Transformation', '12+ years')
-  insert.run('4', 'David Kim', 'Operations', '15+ years')
+  insert.run('1', 'Dr. Ahmed Ayadi', 'Business Strategy', '10+ years')
+  insert.run('2', 'Yassine ben Ali', 'Financial Advisory', '8+ years')
+  insert.run('3', 'Oumaima belhadj', 'Digital Transformation', '12+ years')
+  insert.run('4', 'Salma ben Abdallah', 'Operations', '15+ years')
 }
 
 module.exports = db

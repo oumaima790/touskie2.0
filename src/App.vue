@@ -1,12 +1,43 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const mode = ref("router"); // "router" | "window"
 
-const router = useRouter();
 const drawer = ref(false);
 const showChatbot = ref(false);
+
+const route = useRoute();
+const router = useRouter();
+
+const currentUser = ref(JSON.parse(localStorage.getItem("user")) || null);
+
+const isLoggedIn = computed(() => {
+  return Boolean(localStorage.getItem("token") || currentUser.value);
+});
+
+function refreshCurrentUser() {
+  currentUser.value = JSON.parse(localStorage.getItem("user")) || null;
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("consultantMode");
+  localStorage.removeItem("touskie_user");
+  localStorage.removeItem("touskie_token");
+
+  refreshCurrentUser();
+  router.push("/login");
+}
+
+const categories = [
+  { name: "Strategy", icon: "📊" },
+  { name: "Finance", icon: "💰" },
+  { name: "Digital", icon: "💻" },
+  { name: "Operations", icon: "⚙️" },
+  { name: "Legal", icon: "⚖️" }
+];
 
 import { useTouskieConsultantUI } from "./store/useTouskieConsultantUI";
 
@@ -27,38 +58,71 @@ import About from "./pages/About.vue";
 
 const { currentRoute, onHashChange } = useTouskieConsultantUI();
 
-onMounted(() => {
-  if (mode.value === "window") {
-    window.addEventListener("hashchange", onHashChange);
-    if (!window.location.hash) window.location.hash = "#/p33";
-    onHashChange();
-  }
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener("hashchange", onHashChange);
-});
-
 function goRouterMode() {
   mode.value = "router";
 }
 
 function goWindowMode() {
   mode.value = "window";
-  if (!window.location.hash) window.location.hash = "#/p33";
+
+  if (!window.location.hash) {
+    window.location.hash = "#/p33";
+  }
+
   onHashChange();
   window.addEventListener("hashchange", onHashChange);
 }
+
+function handleConsultantSignupRedirect() {
+  const shouldOpenConsultantUI = localStorage.getItem("openConsultantUI");
+
+  if (shouldOpenConsultantUI === "true") {
+    localStorage.removeItem("openConsultantUI");
+    goWindowMode();
+  }
+}
+
+watch(
+  () => route.fullPath,
+  () => {
+    refreshCurrentUser();
+  }
+);
+
+onMounted(() => {
+  refreshCurrentUser();
+  handleConsultantSignupRedirect();
+
+  window.addEventListener("open-consultant-ui", goWindowMode);
+
+  window.addEventListener("storage", refreshCurrentUser);
+
+  if (mode.value === "window") {
+    window.addEventListener("hashchange", onHashChange);
+
+    if (!window.location.hash) {
+      window.location.hash = "#/p33";
+    }
+
+    onHashChange();
+  }
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("hashchange", onHashChange);
+  window.removeEventListener("open-consultant-ui", goWindowMode);
+  window.removeEventListener("storage", refreshCurrentUser);
+});
 </script>
 
 <template>
-  <v-app style="background: #0e203a;">
+  <v-app class="app-shell">
+    <!-- E-COMMERCE MODE -->
     <template v-if="mode === 'router'">
       <v-app-bar
-        style="background: #071426; color: white;"
+        class="main-app-bar px-4"
         elevation="4"
-        height="64"
-        class="px-4"
+        height="72"
       >
         <v-app-bar-nav-icon @click="drawer = !drawer" />
 
@@ -66,15 +130,73 @@ function goWindowMode() {
           Touskie <span class="sub">E-commerce</span>
         </v-app-bar-title>
 
+        <div class="header-categories">
+          <v-menu>
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                variant="text"
+                class="header-link"
+              >
+                
+                
+              </v-btn>
+            </template>
+
+            <v-list class="category-menu">
+              <v-list-item
+                v-for="cat in categories"
+                :key="cat.name"
+                @click="$router.push('/listings')"
+              >
+                <v-list-item-title>
+                  {{ cat.icon }} {{ cat.name }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
+
         <v-spacer />
 
-        <v-btn variant="text" @click="goWindowMode" class="consultant-link">
-          Consultant UI
+        <template v-if="!isLoggedIn">
+          <v-btn
+            variant="text"
+            class="header-link"
+            @click="$router.push('/login')"
+          >
+            Log In
+          </v-btn>
+
+          <v-btn
+            variant="text"
+            class="header-link"
+            @click="$router.push('/signup')"
+          >
+            Sign Up
+          </v-btn>
+        </template>
+
+        <template v-else>
+          <v-btn
+            variant="text"
+            class="header-link logout-link"
+            @click="logout"
+          >
+            Logout
+          </v-btn>
+        </template>
+
+        <v-btn
+          class="post-project-btn"
+          @click="$router.push('/?postProject=1')"
+        >
+          Post A Project
         </v-btn>
       </v-app-bar>
 
-      <v-navigation-drawer v-model="drawer" temporary>
-        <v-list>
+      <v-navigation-drawer v-model="drawer" temporary class="app-drawer">
+        <v-list class="drawer-list">
           <router-link to="/" style="text-decoration: none;">
             <v-list-item>
               <v-list-item-title>Welcome</v-list-item-title>
@@ -107,27 +229,23 @@ function goWindowMode() {
         </v-list>
       </v-navigation-drawer>
 
-      <v-main style="background: linear-gradient(180deg, #071426 0%, #0e203a 100%); min-height: 100vh;">
+      <v-main class="main-background">
         <router-view />
       </v-main>
 
-      <v-btn
-        fab
-        style="position: fixed; right: 24px; bottom: 24px; z-index: 1000; background-color: #ff6b13; color: white;"
-        @click="showChatbot = true"
-        class="chatbot-button"
-      >
+      <button class="chatbot-button" @click="showChatbot = true">
         <v-icon>mdi-robot</v-icon>
-      </v-btn>
+      </button>
 
       <AIChatbot v-model="showChatbot" />
     </template>
 
+    <!-- CONSULTANT MODE -->
     <template v-else>
       <TopBar />
 
-      <v-main style="background: linear-gradient(180deg, #071426 0%, #0e203a 100%); min-height: 100vh;">
-        <v-container fluid class="pa-6" style="background: transparent;">
+      <v-main class="main-background">
+        <v-container fluid class="pa-6 consultant-container">
           <v-window v-model="currentRoute">
             <v-window-item value="p33"><P33 /></v-window-item>
             <v-window-item value="p34"><P34 /></v-window-item>
@@ -146,7 +264,7 @@ function goWindowMode() {
       <AppDialog />
 
       <v-btn
-        style="position: fixed; right: 16px; bottom: 16px; z-index: 9999; background-color: #ff6b13; color: white;"
+        class="ecommerce-button"
         @click="goRouterMode"
       >
         E-commerce UI
@@ -155,19 +273,63 @@ function goWindowMode() {
   </v-app>
 </template>
 
-<style scoped>
-.hover-lift {
-  transition: all 0.3s ease;
+<style>
+html,
+body,
+#app {
+  background: #071426 !important;
+  margin: 0;
+  min-height: 100vh;
 }
 
-.hover-lift:hover {
-  transform: translateX(4px);
-  background-color: rgba(255, 107, 19, 0.1);
+.v-application {
+  background: #071426 !important;
+}
+
+.v-main {
+  background: linear-gradient(180deg, #071426 0%, #0e203a 100%) !important;
+}
+</style>
+
+<style scoped>
+.app-shell {
+  background: #071426 !important;
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+.main-app-bar {
+  background: #071426 !important;
+  color: white !important;
+}
+
+.main-background {
+  background: linear-gradient(180deg, #071426 0%, #0e203a 100%) !important;
+  min-height: 100vh;
+}
+
+.consultant-container {
+  background: transparent !important;
+  min-height: 100vh;
+}
+
+.app-drawer {
+  background: #0b1a2e !important;
+  color: #ffffff !important;
+}
+
+.drawer-list {
+  background: #0b1a2e !important;
+  color: #ffffff !important;
+}
+
+.drawer-list :deep(.v-list-item-title) {
+  color: #ffffff !important;
 }
 
 .brand {
   color: #ff6b13 !important;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -175,7 +337,92 @@ function goWindowMode() {
   color: #ffffff;
 }
 
-.consultant-link {
+.header-categories {
+  margin-left: 34px;
+}
+
+.header-link {
+  color: #dbe7f5 !important;
+  text-transform: none;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.header-link:hover {
+  color: #ff812f !important;
+}
+
+.logout-link {
+  color: #ff9b6a !important;
+}
+
+.post-project-btn {
+  margin-left: 12px;
+  background: transparent !important;
   color: #ff6b13 !important;
+  text-transform: none;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.post-project-btn:hover {
+  background: rgba(255, 107, 19, 0.1) !important;
+}
+
+.category-menu {
+  background: #071426 !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.category-menu :deep(.v-list-item-title) {
+  color: white !important;
+}
+
+.category-menu :deep(.v-list-item:hover) {
+  background: rgba(255, 107, 19, 0.12) !important;
+}
+
+.chatbot-button {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  outline: none;
+
+  background: #ff6b13;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  box-shadow: 0 0 24px rgba(255, 107, 19, 0.45);
+  transition: all 0.2s ease;
+}
+
+.chatbot-button:hover {
+  background: #ff812f;
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(255, 107, 19, 0.6);
+}
+
+.chatbot-button .v-icon {
+  font-size: 28px;
+}
+
+.ecommerce-button {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9999;
+  background-color: #ff6b13 !important;
+  color: white !important;
 }
 </style>

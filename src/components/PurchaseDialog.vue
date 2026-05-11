@@ -6,7 +6,7 @@
       </v-card-title>
 
       <v-card-text class="px-6">
-        <v-form ref="form" v-model="valid">
+        <v-form ref="formRef" v-model="valid">
           <v-text-field
             v-model="form.name"
             label="Full Name"
@@ -22,7 +22,10 @@
             type="email"
             variant="outlined"
             density="compact"
-            :rules="[v => !!v || 'Email is required', v => /.+@.+\..+/.test(v) || 'Email must be valid']"
+            :rules="[
+              v => !!v || 'Email is required',
+              v => /.+@.+\..+/.test(v) || 'Email must be valid'
+            ]"
             class="mb-4"
           />
 
@@ -51,8 +54,9 @@
             :rules="[v => !!v || 'Please select consultant type']"
             class="mb-4"
           >
-            <v-radio label="AI Consultant" value="ai"></v-radio>
-            <v-radio label="Human Consultant" value="human"></v-radio>
+            <v-radio label="AI Consultant" value="ai" />
+            <v-radio label="Human Consultant" value="human" />
+            <v-radio label="No Consultant" value="none" />
           </v-radio-group>
 
           <v-select
@@ -64,27 +68,48 @@
             label="Choose Consultant"
             variant="outlined"
             density="compact"
-            :rules="[v => !form.consultantType || form.consultantType === 'ai' || !!v || 'Please select a consultant']"
+            :rules="[
+              v =>
+                form.consultantType !== 'human' ||
+                !!v ||
+                'Please select a consultant'
+            ]"
             class="mb-4"
           />
 
           <div v-if="selectedListing" class="pa-4 bg-grey-lighten-5 rounded">
             <h4 class="text-h6 mb-2">Purchase Summary</h4>
-            <p><strong>Item:</strong> {{ selectedListing.title }}</p>
-            <p><strong>Price:</strong> ${{ selectedListing.price }}</p>
-            <p><strong>Consultant:</strong> {{ getConsultantName() }}</p>
+
+            <p>
+              <strong>Item:</strong>
+              {{ selectedListing.title }}
+            </p>
+
+            <p>
+              <strong>Price:</strong>
+              ${{ selectedListing.price }}
+            </p>
+
+            <p>
+              <strong>Consultant:</strong>
+              {{ getConsultantName() }}
+            </p>
           </div>
         </v-form>
       </v-card-text>
 
       <v-card-actions class="px-6 pb-6">
         <v-spacer />
-        <v-btn variant="text" @click="closeDialog">Cancel</v-btn>
+
+        <v-btn variant="text" @click="closeDialog">
+          Cancel
+        </v-btn>
+
         <v-btn
           color="primary"
-          @click="confirmPurchase"
           :loading="loading"
           :disabled="!valid"
+          @click="confirmPurchase"
         >
           Confirm Purchase
         </v-btn>
@@ -95,8 +120,11 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import consultantService from '../services/consultantService'
 import transactionService from '../services/transactionService'
+
+const router = useRouter()
 
 const props = defineProps({
   modelValue: Boolean,
@@ -107,8 +135,10 @@ const emit = defineEmits(['update:modelValue', 'purchaseCompleted'])
 
 const dialog = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+  set: value => emit('update:modelValue', value)
 })
+
+const formRef = ref(null)
 
 const form = ref({
   name: '',
@@ -123,27 +153,82 @@ const valid = ref(false)
 const loading = ref(false)
 const consultants = ref([])
 
-watch(() => props.modelValue, async (newVal) => {
-  if (newVal) {
-    consultants.value = await consultantService.getAll()
-    form.value = {
-      name: '',
-      email: '',
-      phone: '',
-      address: '',
-      consultantType: '',
-      consultantId: null
+const DEMO_CASE_ID = 'TX-1042'
+
+const createVerificationCode = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString()
+}
+
+const getVerificationStorageKey = () => {
+  return `touskie_verification_code_${DEMO_CASE_ID}`
+}
+
+const getClientVerificationCode = () => {
+  const key = getVerificationStorageKey()
+  let code = localStorage.getItem(key)
+
+  if (!code) {
+    code = createVerificationCode()
+    localStorage.setItem(key, code)
+  }
+
+  return code
+}
+
+const saveDemoTransactionToLocalStorage = transaction => {
+  const savedTransactions = JSON.parse(
+    localStorage.getItem('transactions') || '[]'
+  )
+
+  savedTransactions.push(transaction)
+
+  localStorage.setItem('transactions', JSON.stringify(savedTransactions))
+}
+
+watch(
+  () => props.modelValue,
+  async newVal => {
+    if (newVal) {
+      consultants.value = await consultantService.getAll()
+
+      form.value = {
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        consultantType: '',
+        consultantId: null
+      }
     }
   }
-})
+)
+
+watch(
+  () => form.value.consultantType,
+  newType => {
+    if (newType !== 'human') {
+      form.value.consultantId = null
+    }
+  }
+)
 
 const getConsultantName = () => {
   if (form.value.consultantType === 'ai') {
     return 'AI Consultant'
-  } else if (form.value.consultantId) {
-    const consultant = consultants.value.find(c => c.id === form.value.consultantId)
+  }
+
+  if (form.value.consultantType === 'none') {
+    return 'No Consultant'
+  }
+
+  if (form.value.consultantType === 'human' && form.value.consultantId) {
+    const consultant = consultants.value.find(
+      c => c.id === form.value.consultantId
+    )
+
     return consultant ? consultant.name : 'Unknown'
   }
+
   return 'Not selected'
 }
 
@@ -153,23 +238,57 @@ const confirmPurchase = async () => {
   loading.value = true
 
   try {
+    const isHumanConsultant = form.value.consultantType === 'human'
+    const isAiConsultant = form.value.consultantType === 'ai'
+    const needsVerificationCode = isHumanConsultant
+
+    const verificationCode = needsVerificationCode
+      ? getClientVerificationCode()
+      : ''
+
     const transaction = {
       id: Date.now(),
       buyerName: form.value.name,
       buyerEmail: form.value.email,
       buyerPhone: form.value.phone,
       buyerAddress: form.value.address,
-      listingTitle: props.selectedListing.title,
-      price: props.selectedListing.price,
+      listingTitle: props.selectedListing?.title || 'Demo Listing',
+      price: props.selectedListing?.price || 0,
       consultantType: form.value.consultantType,
       consultantName: getConsultantName(),
       consultantId: form.value.consultantId,
+      caseId: needsVerificationCode ? DEMO_CASE_ID : null,
+      verificationCode,
+      verificationStatus: needsVerificationCode ? 'Pending' : 'Not Required',
       date: new Date().toLocaleString()
     }
 
-    transactionService.add(transaction)
+    try {
+      await transactionService.add(transaction)
+    } catch (error) {
+      console.warn(
+        'Backend transaction save failed. Demo local save will still continue.',
+        error
+      )
+    }
+
+    saveDemoTransactionToLocalStorage(transaction)
+
     emit('purchaseCompleted', transaction)
+
     closeDialog()
+
+    if (isHumanConsultant) {
+      router.push('/transaction')
+      return
+    }
+
+    if (isAiConsultant) {
+      router.push('/consultants')
+      return
+    }
+
+    router.push('/listings')
   } catch (error) {
     console.error('Purchase failed:', error)
   } finally {

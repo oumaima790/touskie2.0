@@ -5,27 +5,50 @@
         <h1>Consultant Profile Form</h1>
         <p>Fill out your consultant profile. Add certifications via dialog.</p>
       </div>
-      <span class="chip">Step 2 / 3</span>
+
+      <span class="step-chip">Step 2 / 3</span>
     </div>
 
     <div class="grid">
       <div class="dark-card main-card">
         <div class="form-grid">
-          <v-text-field v-model="state.onboarding.profile.fullName" label="Full name" prepend-icon="mdi-account" />
+          <v-text-field
+            v-model="state.onboarding.profile.fullName"
+            label="Full name"
+            prepend-icon="mdi-account"
+          />
+
           <v-text-field
             v-model="state.onboarding.profile.skills"
             label="Skills (comma separated)"
             prepend-icon="mdi-star-outline"
             placeholder="e.g., valuation, contract review, IT audits"
           />
-          <v-textarea v-model="state.onboarding.profile.experience" label="Experience" prepend-icon="mdi-briefcase-outline" />
-          <v-textarea v-model="state.onboarding.profile.bio" label="Bio" prepend-icon="mdi-text" />
-          <v-text-field v-model="state.onboarding.profile.languages" label="Languages" prepend-icon="mdi-translate" />
+
+          <v-textarea
+            v-model="state.onboarding.profile.experience"
+            label="Experience"
+            prepend-icon="mdi-briefcase-outline"
+          />
+
+          <v-textarea
+            v-model="state.onboarding.profile.bio"
+            label="Bio"
+            prepend-icon="mdi-text"
+          />
+
+          <v-text-field
+            v-model="state.onboarding.profile.languages"
+            label="Languages"
+            prepend-icon="mdi-translate"
+          />
         </div>
 
         <div class="cert-header">
           <h2>Certifications</h2>
-          <button class="small-btn" @click="openAddCertificationDialog">+ Add</button>
+          <button class="small-btn" @click="openAddCertificationDialog">
+            + Add
+          </button>
         </div>
 
         <div class="chips">
@@ -35,20 +58,36 @@
             class="mini-chip"
           >
             {{ c }}
-            <button @click="state.onboarding.profile.certifications.splice(i, 1)">×</button>
+            <button @click="state.onboarding.profile.certifications.splice(i, 1)">
+              ×
+            </button>
           </span>
         </div>
 
-        <div v-if="!state.onboarding.profile.certifications.length" class="status-box info">
+        <div
+          v-if="!state.onboarding.profile.certifications.length"
+          class="status-box info"
+        >
           <strong>No certifications</strong>
           <span>You can add certifications to build trust.</span>
         </div>
 
         <div class="actions">
-          <button class="text-btn" @click="navigate('p34')">Back</button>
+          <button class="text-btn" @click="navigate('p34')">
+            Back
+          </button>
+
           <div>
-            <button class="secondary-btn" @click="openSimpleDialog('Saved', 'Profile draft saved (mock).')">Save</button>
-            <button class="primary-btn" @click="navigate('p38')">Next</button>
+            <button
+              class="secondary-btn"
+              @click="openSimpleDialog('Saved', 'Profile draft saved (mock).')"
+            >
+              Save
+            </button>
+
+            <button class="primary-btn" @click="navigate('p38')">
+              Next
+            </button>
           </div>
         </div>
       </div>
@@ -61,6 +100,7 @@
             <h3>{{ state.onboarding.profile.fullName || "—" }}</h3>
             <p>{{ state.onboarding.profile.languages || "No languages yet" }}</p>
           </div>
+
           <span class="success-chip">Verified</span>
         </div>
 
@@ -101,6 +141,7 @@ const { state, navigate, openSimpleDialog, openAddCertificationDialog } =
   max-width: 1200px;
   margin: 0 auto 28px;
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
 }
@@ -117,14 +158,28 @@ const { state, navigate, openSimpleDialog, openAddCertificationDialog } =
   font-size: 17px;
 }
 
-.chip,
-.mini-chip {
+/* Fixed Step badge */
+.step-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: auto;
+  height: auto;
+  min-width: unset;
+  min-height: unset;
+
   padding: 8px 16px;
   border-radius: 999px;
-  background: rgba(255, 107, 19, 0.15);
+
+  background: rgba(255, 107, 19, 0.14);
   color: #ff6b13;
-  font-weight: 700;
   border: 1px solid rgba(255, 107, 19, 0.35);
+
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .grid {
@@ -173,12 +228,24 @@ h2 {
   flex-wrap: wrap;
 }
 
+.mini-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 107, 19, 0.15);
+  color: #ff6b13;
+  font-weight: 700;
+  border: 1px solid rgba(255, 107, 19, 0.35);
+}
+
 .mini-chip button {
   margin-left: 8px;
   border: none;
   background: transparent;
   color: #ff6b13;
   cursor: pointer;
+  font-weight: 900;
 }
 
 .status-box {
@@ -268,10 +335,12 @@ button {
     padding: 32px 20px;
   }
 
-  .page-header,
+  .page-header {
+    flex-direction: column;
+  }
+
   .grid {
     grid-template-columns: 1fr;
-    flex-direction: column;
   }
 }
 </style>

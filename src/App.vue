@@ -13,11 +13,29 @@ const router = useRouter();
 const currentUser = ref(JSON.parse(localStorage.getItem("user")) || null);
 
 const isLoggedIn = computed(() => {
-  return Boolean(localStorage.getItem("token") || currentUser.value);
+  return Boolean(
+    localStorage.getItem("token") ||
+    localStorage.getItem("touskie_token") ||
+    currentUser.value
+  );
 });
 
 function refreshCurrentUser() {
-  currentUser.value = JSON.parse(localStorage.getItem("user")) || null;
+  currentUser.value =
+    JSON.parse(localStorage.getItem("user")) ||
+    JSON.parse(localStorage.getItem("touskie_user")) ||
+    null;
+}
+
+function goToPostProject() {
+  refreshCurrentUser();
+
+  if (isLoggedIn.value) {
+    router.push({ path: "/", query: { postProject: "1" } });
+  } else {
+    localStorage.setItem("afterLoginAction", "postProject");
+    router.push("/login");
+  }
 }
 
 function logout() {
@@ -26,6 +44,7 @@ function logout() {
   localStorage.removeItem("consultantMode");
   localStorage.removeItem("touskie_user");
   localStorage.removeItem("touskie_token");
+  localStorage.removeItem("afterLoginAction");
 
   refreshCurrentUser();
   router.push("/login");
@@ -94,7 +113,6 @@ onMounted(() => {
   handleConsultantSignupRedirect();
 
   window.addEventListener("open-consultant-ui", goWindowMode);
-
   window.addEventListener("storage", refreshCurrentUser);
 
   if (mode.value === "window") {
@@ -138,8 +156,6 @@ onBeforeUnmount(() => {
                 variant="text"
                 class="header-link"
               >
-                
-                
               </v-btn>
             </template>
 
@@ -189,7 +205,7 @@ onBeforeUnmount(() => {
 
         <v-btn
           class="post-project-btn"
-          @click="$router.push('/?postProject=1')"
+          @click="goToPostProject"
         >
           Post A Project
         </v-btn>

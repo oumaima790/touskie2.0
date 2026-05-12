@@ -500,7 +500,7 @@ export default {
       ],
 
       currentView: 'welcome',
-      currentUser: JSON.parse(localStorage.getItem('user')) || null,
+      currentUser: null,
     }
   },
 
@@ -511,29 +511,35 @@ export default {
   },
 
   mounted() {
+    this.refreshCurrentUser()
     this.checkPostProjectQuery()
   },
 
   watch: {
     '$route.query.postProject'(value) {
       if (value === '1') {
-        this.currentView = 'signup'
+        this.openPostProjectFlow()
       }
     }
   },
 
   methods: {
+    refreshCurrentUser() {
+      this.currentUser = JSON.parse(localStorage.getItem('user')) || null
+    },
+
+    openPostProjectFlow() {
+      this.refreshCurrentUser()
+      this.currentView = this.currentUser ? 'postProject' : 'signup'
+    },
+
     handlePostProjectClick() {
-      if (this.isEnrolled) {
-        this.currentView = 'postProject'
-      } else {
-        this.currentView = 'signup'
-      }
+      this.openPostProjectFlow()
     },
 
     checkPostProjectQuery() {
       if (this.$route.query.postProject === '1') {
-        this.currentView = 'signup'
+        this.openPostProjectFlow()
       }
     },
 
@@ -546,7 +552,7 @@ export default {
     },
 
     onSignupSuccess() {
-      this.currentUser = JSON.parse(localStorage.getItem('user')) || null
+      this.refreshCurrentUser()
 
       if (this.currentUser) {
         this.currentView = 'postProject'
@@ -558,6 +564,7 @@ export default {
 
     onListingCreated() {
       this.currentView = 'welcome'
+      this.$router.push('/listings')
     },
 
     addToListings(product) {
